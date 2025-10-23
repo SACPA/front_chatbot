@@ -39,7 +39,7 @@ class _ChatPageState extends State<ChatPage> {
   void _sendMessage() async {
     final text = _controller.text.trim();
     if (text.isEmpty) {
-      // Refuerzo: no enviar mensajes vacíos
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor escribe un mensaje antes de enviar')),
       );
@@ -53,10 +53,10 @@ class _ChatPageState extends State<ChatPage> {
       _loadingText = "";
     });
 
-    // Scroll hacia abajo cuando el usuario envía el mensaje
+
     _scrollToBottom();
 
-    // Timer para animar "Escribiendo..."
+
     _loadingTimer?.cancel();
     _loadingTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
       if (!_isLoading) {
@@ -69,15 +69,31 @@ class _ChatPageState extends State<ChatPage> {
               _loadingText += ".";
             }
           });
-          // Si la burbuja de 'Escribiendo...' crece, mantener scroll al final
+
           _scrollToBottom();
       }
     });
 
+
+    final isHealthy = await api.health();
+    if (!isHealthy) {
+      setState(() {
+        _isLoading = false;
+        _messages.add({
+          'role': 'assistant',
+          'content': 'Opps, no puedo pensar en estos momentos :/'
+        });
+      });
+      _loadingTimer?.cancel();
+      _loadingTimer = null;
+      _scrollToBottom();
+      return;
+    }
+
     try {
       final reply = await api.sendMessage(text);
       if (reply.isEmpty) {
-        // Respuesta vacía: mostrar snackbar y no añadir mensaje vacío
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('La respuesta del servidor está vacía')),
         );
@@ -91,10 +107,10 @@ class _ChatPageState extends State<ChatPage> {
         _isLoading = false;
         _messages.add({'role': 'assistant', 'content': reply});
       });
-      // Después de añadir la respuesta, desplazarse al final
+
       _scrollToBottom();
     } catch (e) {
-      // En caso de excepción (por ejemplo, sin conexión), añadimos un mensaje amistoso del asistente
+
       setState(() {
         _isLoading = false;
         _messages.add({
@@ -102,7 +118,7 @@ class _ChatPageState extends State<ChatPage> {
           'content': 'Opps! Al parecer no estás conectado a internet 😅'
         });
       });
-      // Asegurar scroll al final también en error
+
       _scrollToBottom();
     } finally {
       _loadingTimer?.cancel();
@@ -111,7 +127,7 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   void _scrollToBottom() {
-    // Pequeño delay para permitir que la ListView recalcule su tamaño
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients) return;
       try {
@@ -121,7 +137,7 @@ class _ChatPageState extends State<ChatPage> {
           curve: Curves.easeOut,
         );
       } catch (_) {
-        // Ignorar si la animación falla por estar fuera de rango
+
       }
     });
   }

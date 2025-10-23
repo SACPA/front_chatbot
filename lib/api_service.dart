@@ -23,4 +23,15 @@ class ApiService {
       throw Exception('Error: ${response.statusCode}');
     }
   }
+
+  /// Verifica el endpoint /health.
+  Future<bool> health({Duration timeout = const Duration(seconds: 3)}) async {
+    final url = Uri.parse('$baseUrl/health');
+    try {
+      final response = await http.get(url).timeout(timeout);
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
 }
