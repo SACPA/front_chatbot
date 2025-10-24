@@ -81,7 +81,7 @@ class _ChatPageState extends State<ChatPage> {
         _isLoading = false;
         _messages.add({
           'role': 'assistant',
-          'content': 'Opps, no puedo pensar en estos momentos :/'
+          'content': 'Opps, algo salió mal con el servidor 😅'
         });
       });
       _loadingTimer?.cancel();
